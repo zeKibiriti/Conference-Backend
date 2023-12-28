@@ -3,6 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {RegistrationForm} from "../entities/RegistrationForm";
 import {Repository} from "typeorm";
 import {CreateRegisteredDto} from "./registration.dto";
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class RegistrationService {
@@ -20,12 +21,23 @@ export class RegistrationService {
         return data;
     }
 
-    async createRegistered(createRegisteredDto: CreateRegisteredDto) {
-        // Map properties from DTO to entity
-        const newRegistration = this.registrationRepository.create(createRegisteredDto);
-        // Save the new registration
-        return this.registrationRepository.save(newRegistration);
+    async createRegistered(createRegisteredDto: CreateRegisteredDto): Promise<void> {
+        // Hash the password
+        const hashedPassword = await bcrypt.hash(createRegisteredDto.password, 12);
+
+        // Save the user to the database with the hashed password
+        await this.registrationRepository.create({
+            ...createRegisteredDto,
+            password: hashedPassword,
+        });
     }
+
+    // async createRegistered(createRegisteredDto: CreateRegisteredDto) {
+    //     // Map properties from DTO to entity
+    //     const newRegistration = this.registrationRepository.create(createRegisteredDto);
+    //     // Save the new registration
+    //     return this.registrationRepository.save(newRegistration);
+    // }
 
     async updateRegistered(id: string, updateRegisteredDto: CreateRegisteredDto): Promise<RegistrationForm | null> {
         // Implement your logic to update the registration by ID

@@ -1,4 +1,5 @@
 import { IsString, IsEmail, IsNotEmpty, IsPhoneNumber } from 'class-validator';
+import {hash} from "bcrypt";
 export class CreateRegisteredDto {
     @IsNotEmpty()
     id: number;
